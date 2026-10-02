@@ -1,0 +1,7 @@
+assets/*.wav
+assets/*.m4a
+assets/*.mp3
+out/
+analysis/stems/
+node_modules/
+.DS_Store
