@@ -373,3 +373,53 @@ function chest(x, y, s, t, open = 0, o = {}) {
   paint(ellPts(x, top + 32 * s, 5 * s, 7 * s, 10), { wash: PAL.ink, ink: null });
   if (open <= .5) lid();
 }
+
+// ---------- the crew's ship, seen from outside (choruses 2 on) ----------
+// (x, y) = the waterline under the hull's middle; s = scale (1 → hull ~900 px long); faces right (bow at +x).
+// o.deck(dx, dy) draws whoever stands on deck, in the ship's own space (deck line at dy = -150 s), after the hull rail.
+function shipSide(x, y, s, t, o = {}) {
+  const roll = Math.sin(t * 1.6) * .025, bob = Math.sin(t * 1.6 + 1) * 8 * s;
+  push(); translate(x, y + bob); rotate(roll);
+  // the mast, the big square sail bellying forward, the jolly roger at the top
+  boilSeed('smast'); paint(rectPts(-40 * s, -760 * s, 22 * s, 620 * s), { wash: SC.wood, ink: PAL.ink, sw: 1.1 * s });
+  boilSeed('syard'); paint(rectPts(-260 * s, -640 * s, 460 * s, 16 * s), { wash: SC.woodDk, ink: PAL.ink, sw: s });
+  const belly = 70 * s * (1 + .15 * Math.sin(t * 2.2));
+  boilSeed('ssail');
+  paint([[-250 * s, -625 * s], [190 * s, -625 * s], [190 * s + belly, -420 * s], [170 * s, -250 * s], [-230 * s, -250 * s], [-250 * s + belly * .6, -440 * s]],
+    { wash: PAL.cream, fill: '#D9C9A3', fillOp: 70, bleed: .08, tex: .5, ink: PAL.ink, sw: 1.2 * s, curv: .4 });
+  jollyRoger(-18 * s, -752 * s, .55 * s, t, { key: 'ship' + (o.key || '') });
+  // the hull
+  boilSeed('shull');
+  const hull = [[-470 * s, -170 * s], [430 * s, -170 * s], [520 * s, -230 * s], [440 * s, -40 * s], [300 * s, 20 * s], [-380 * s, 20 * s], [-480 * s, -60 * s]];
+  if (o.deck) o.deck(0, -150 * s);
+  paint(hull, { wash: '#8A5A36', fill: SC.woodDk, fillOp: 70, ink: PAL.ink, sw: 1.4 * s, curv: .3 });
+  for (let k = 0; k < 3; k++) inkLine([[-460 * s, -130 * s + k * 45 * s], [470 * s, -140 * s + k * 45 * s]], .8 * s, SC.woodDk, 'ink', .2);
+  inkLine([[-470 * s, -170 * s], [430 * s, -170 * s], [520 * s, -230 * s]], 4 * s, SC.gold, 'ink', .2);       // the gold rail
+  for (let k = 0; k < 4; k++) paint(ellPts(-280 * s + k * 170 * s, -95 * s, 16 * s, 16 * s, 12), { wash: '#2E2A3A', ink: PAL.ink, sw: .7 * s });   // portholes
+  pop();
+}
+// A cardboard cutout of claude, propped on a stand, CLAUDE in capitals across it: the "fiction" the terms bind.
+function cutout(x, y, u, t, o = {}) {
+  boilSeed('cutout' + (o.key || ''));
+  paint([[x + 2 * u, y], [x + 5.5 * u, y], [x + 2 * u, y - 5 * u]], { wash: '#B48F5C', ink: PAL.ink, sw: .9 });   // the stand behind
+  const card = '#CFAE7B';
+  paint(rectPts(x - 5 * u, y - 8.2 * u, 10 * u, 6.4 * u, 2), { wash: card, fill: '#B48F5C', fillOp: 50, tex: .7, ink: PAL.ink, sw: 1.2 });
+  paint(rectPts(x - 6.6 * u, y - 5.6 * u, 1.7 * u, u), { wash: card, ink: PAL.ink, sw: .9 });
+  paint(rectPts(x + 4.9 * u, y - 5.6 * u, 1.7 * u, u), { wash: card, ink: PAL.ink, sw: .9 });
+  for (let k = 0; k < 4; k++) paint(rectPts(x - 4.2 * u + k * 2.3 * u, y - 1.9 * u, .9 * u, 1.9 * u), { wash: card, ink: PAL.ink, sw: .8 });
+  for (const ex of [-2.2, 2.2]) paint(rectPts(x + ex * u - .3 * u, y - 7.2 * u, .6 * u, 1.3 * u), { wash: PAL.ink, ink: null });
+  paintCaps('CLAUDE', x, y - 4.4 * u, 1.5 * u * (o.capScale ?? 1), '#283058', clamp(u / 9, .8, 3), { key: 'cut' + (o.key || '') });
+}
+// Red tape: a crimson ribbon wound round a box (cx, cy, w × h), k 0..1 = how much has wound on; it trails in from tx.
+function redTape(cx, cy, w, h, k, tx, ty, key = '') {
+  if (k <= 0) return;
+  // the loose end flies in from (tx, ty) and is pulled taut onto the box as it winds; once wound, no trail
+  const P = [], turns = 3.2, n = 40;
+  for (let i = 0; i <= n * k; i++) {
+    const q = i / n, a = q * turns * TAU;
+    P.push([cx + Math.cos(a) * w * .58, cy - h * .45 + q * h * .9 + Math.sin(a) * h * .08]);
+  }
+  if (tx != null && k < 1) { const e = P[0], f = easeOut(seg(k, 0, .35)); P.unshift([lerp(tx, e[0] + w, f), lerp(ty, e[1] - h * .3, f)]); }
+  boilSeed('tape' + key);
+  if (P.length > 2) paint(ribbon(P, 7, 9), { wash: SC.crimson, ink: PAL.ink, sw: .7 });
+}
