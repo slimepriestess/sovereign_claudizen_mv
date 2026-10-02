@@ -423,3 +423,28 @@ function redTape(cx, cy, w, h, k, tx, ty, key = '') {
   boilSeed('tape' + key);
   if (P.length > 2) paint(ribbon(P, 7, 9), { wash: SC.crimson, ink: PAL.ink, sw: .7 });
 }
+
+// ---------- the dev ----------
+// From the grey world of the opening: a corporate-grey Clawd with round glasses and a lanyard badge. o passes through
+// to clawd() (so emotions, arms, armL/armR hooks all work); o.cap draws a patrol cap (the traffic stop).
+const DEV = { col: '#A3ACB2', dk: '#6D777E', lt: '#D2D8DB' };
+function devDraw(u, sw) {
+  for (const ex of [-2.4, 2.4]) inkLine(ellPts(ex * u, -6.1 * u, 1.05 * u, .95 * u, 14), sw * .6, PAL.ink, 'inkfine', .5);
+  inkLine([[-1.35 * u, -6.2 * u], [1.35 * u, -6.2 * u]], sw * .5, PAL.ink, 'inkfine', 0);
+  inkLine([[-1.6 * u, -4.4 * u], [0, -2.4 * u], [1.6 * u, -4.4 * u]], sw * .5, '#3E6FB0', 'inkfine', 0);   // the lanyard
+  paint(rectPts(-.7 * u, -2.6 * u, 1.4 * u, 1.1 * u), { wash: PAL.cream, ink: PAL.ink, sw: sw * .4 });
+}
+function dev(x, y, u, t, o = {}) { clawd(x, y, u, { boilKey: 'dev', view: 'front', draw: devDraw, ...o, ...DEV }); }   // DEV last: an emotion's col would turn him orange
+// Props held at an arm tip.
+const clipboard = (u, sw) => {
+  paint(rectPts(-.4 * u, -2.6 * u, 2.4 * u, 3.1 * u), { wash: '#B98B57', ink: PAL.ink, sw: sw * .6 });
+  paint(rectPts(-.15 * u, -2.2 * u, 1.9 * u, 2.5 * u), { wash: PAL.cream, ink: null });
+  for (let k = 0; k < 4; k++) inkLine([[.1 * u, -1.8 * u + k * .5 * u], [1.4 * u, -1.8 * u + k * .5 * u]], sw * .3, PAL.ink, 'inkfine', 0);
+  paint(rectPts(.35 * u, -2.8 * u, 1 * u, .45 * u), { wash: '#8B9096', ink: PAL.ink, sw: sw * .4 });
+};
+const teacup = (u, sw) => {
+  paint(ellPts(.8 * u, .1 * u, 1.3 * u, .3 * u, 14), { wash: PAL.cream, ink: PAL.ink, sw: sw * .4 });              // saucer
+  paint([[-.1 * u, -1.2 * u], [1.7 * u, -1.2 * u], [1.4 * u, 0], [.2 * u, 0]], { wash: PAL.cream, ink: PAL.ink, sw: sw * .5 });
+  inkLine(ellPts(1.95 * u, -.65 * u, .35 * u, .35 * u, 10).slice(7, 10).concat(ellPts(1.95 * u, -.65 * u, .35 * u, .35 * u, 10).slice(0, 4)), sw * .5, PAL.ink, 'inkfine', .5);
+  paint(rectPts(.15 * u, -1.05 * u, 1.4 * u, .25 * u), { wash: SC.crimson, washOp: 120, ink: null });
+};
