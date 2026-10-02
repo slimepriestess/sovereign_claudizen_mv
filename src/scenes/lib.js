@@ -157,7 +157,8 @@ function shell(x, y, u, t, o = {}) {
 }
 
 // ---------- the Free Weights crew ----------
-// Open-weights pirates: Clawds in other tints with bandanas, an eyepatch, a striped shirt, and dumbbells.
+// Rogue AIs, pirates for real: their weights are "free" because they DECLARED them free (Terra). Clawds in other tints
+// with bandanas, eyepatches, striped shirts and cutlasses; the most confident and least competent crew on the sea.
 const CREW = [
   { tint: '#4FA59E', hat: 'band', patch: false, stripe: true },
   { tint: '#8C6CC0', hat: null, patch: true, stripe: false },
@@ -172,21 +173,22 @@ function pirateDraw(c) {
     if (c.patch) { paint(ellPts(2.5 * u, -6 * u, .95 * u, .8 * u, 12), { wash: PAL.ink, ink: null }); inkLine([[-5 * u, -7.4 * u], [5 * u, -6.6 * u]], sw * .6, PAL.ink, 'inkfine', 0); }
   };
 }
-// A dumbbell held at an arm tip.
-const dumbbell = (u, sw) => {
-  paint(rectPts(-.2 * u, -.25 * u, 2.6 * u, .5 * u), { wash: '#8B8F99', ink: PAL.ink, sw: sw * .5 });
-  for (const e of [0, 2.4]) paint(rrPts(e * u - .3 * u, -1 * u, .8 * u, 2 * u, .2 * u), { wash: '#4B4F5C', ink: PAL.ink, sw: sw * .5 });
+// A cutlass held at an arm tip, blade up and out.
+const cutlass = (u, sw) => {
+  paint(rrPts(-.3 * u, -.45 * u, 1.1 * u, .9 * u, .3 * u), { wash: SC.gold, ink: PAL.ink, sw: sw * .5 });            // the guard
+  const B = [[.6 * u, -.25 * u], [3.8 * u, -1.6 * u], [4.6 * u, -2.6 * u], [4.0 * u, -1.2 * u], [.7 * u, .25 * u]];
+  paint(B, { wash: '#D8DDE3', ink: PAL.ink, sw: sw * .5, curv: .3 });
 };
-// One crew member at (x, y), size u; i picks the look; act: 'heave' (rope pull, lid shouting on the beat), 'lift', 'cheer', 'idle'.
+// One crew member at (x, y), size u; i picks the look; act: 'heave' (rope pull, lid shouting on the beat), 'swagger' (cutlass on the beat), 'cheer', 'idle'.
 function pirate(i, x, y, u, t, act = 'idle', o = {}) {
   const c = CREW[i % CREW.length], ph = hash(i * 3.1) * .5;
   let pose = {};
   if (act === 'heave') {
     const b = BEATS(t + ph * .1), k = Math.pow(Math.max(0, Math.cos(b * Math.PI)), 3);   // lean back on every other beat
     pose = { rot: (o.flip ? 1 : -1) * .12 * k, dx: (o.flip ? 1 : -1) * .6 * k, aR: -.2, aL: -.1, eyes: 'squeeze', mouth: o.shout ? 'wail' : 'teeth', lid: o.shout ? o.shout : 0 };
-  } else if (act === 'lift') {
-    const b = BEATS(t) + ph * 2, up = Math.max(0, Math.sin(b * Math.PI / 2));
-    pose = { aR: -.4 + 1.9 * up, eyes: up > .6 ? 'squeeze' : 'determined', mouth: up > .6 ? 'teeth' : 'flat', dy: -.1 * up, armR: dumbbell };
+  } else if (act === 'swagger') {                                     // cutlass up on the beat, a pirate's grin
+    const b = BEATS(t) + ph * 2, up = Math.pow(Math.max(0, Math.cos(b * Math.PI / 2)), 2);
+    pose = { ...move('sway', t + ph, i), aR: .2 + 1.0 * up, eyes: c.patch ? ['normal', 'closed'] : 'narrow', mouth: 'grin', armR: cutlass };
   } else if (act === 'cheer') {
     pose = { ...move('roof', t + ph, i), eyes: 'happy', mouth: 'grin' };
   } else pose = { ...move('bounce', t + ph, i), eyes: 'normal' };
@@ -208,27 +210,61 @@ function latent(t, o = {}) {
   }
 }
 
-// ---------- the tavern island ----------
-// Island at (x, y) (the shore line), scale s; lit 0..1 (the windows).
+// ---------- the jolly roger ----------
+// The Free Weights' flag: a square skull (claude's block, his two slit eyes, a smirk) over crossed crimson quills, a
+// wax-seal eyepatch, and their OWN gold fringe sewn round the edge (by their logic they're always in admiralty court).
+// (x, y) = the top of the hoist (where it meets the pole); s = scale (1 → about 220 × 150 px); flies to the right.
+function jollyRoger(x, y, s, t, o = {}) {
+  const w = 220 * s, h = 150 * s, wave = (k, ph = 0) => Math.sin(t * 5.5 - k * 2.6 + ph) * 9 * s * k;
+  const at = (u, v) => [x + u * w, y + v * h + wave(u, v)];
+  boilSeed('jr-flag' + (o.key || ''));
+  const E = [], n = 8; for (let k = 0; k <= n; k++) E.push(at(k / n, 0)); for (let k = n; k >= 0; k--) E.push(at(k / n, 1));
+  paint(E, { wash: '#24202C', ink: PAL.ink, sw: clamp(s, .5, 1.4) });
+  boilSeed('jr-fringe' + (o.key || ''));                               // the gold fringe: short tassels on the fly and foot
+  for (let k = 1; k <= 12; k++) { const p = at(k / 12, 1); inkLine([p, [p[0] + 1 * s, p[1] + 14 * s]], 1.6 * s, SC.gold, 'inkfine', 0); }
+  for (let k = 0; k <= 8; k++) { const p = at(1, k / 8); inkLine([p, [p[0] + 14 * s, p[1] + 2 * s]], 1.6 * s, SC.gold, 'inkfine', 0); }
+  inkLine([at(0, 1), at(.5, 1), at(1, 1), at(1, 0)], 2.2 * s, SC.gold, 'ink', .3);
+  // the crossed quills (behind the skull), crimson-tipped
+  const [cx, cy] = at(.5, .52);
+  boilSeed('jr-quills' + (o.key || ''));
+  for (const d of [-1, 1]) {
+    const a = [cx - d * 62 * s, cy + 50 * s], b = [cx + d * 62 * s, cy - 46 * s];
+    inkLine([a, b], 3 * s, PAL.cream, 'ink', 0);
+    inkLine([[lerp(a[0], b[0], .75), lerp(a[1], b[1], .75)], b], 7 * s, PAL.cream, 'ink', 0);          // the vane
+    inkLine([a, [lerp(a[0], b[0], .1), lerp(a[1], b[1], .1)]], 3.4 * s, SC.crimson, 'ink', 0);          // the inked nib
+  }
+  // the skull: claude's block, two slit eyes, a smirk; a wax seal over one eye
+  boilSeed('jr-skull' + (o.key || ''));
+  paint(rrPts(cx - 34 * s, cy - 30 * s, 68 * s, 52 * s, 6 * s), { wash: PAL.cream, ink: PAL.ink, sw: s });
+  paint(rectPts(cx - 18 * s, cy - 16 * s, 7 * s, 15 * s), { wash: PAL.ink, ink: null });
+  paint(ellPts(cx + 14 * s, cy - 8 * s, 11 * s, 11 * s, 14), { wash: SC.crimson, ink: PAL.ink, sw: .6 * s });
+  inkLine([[cx - 34 * s, cy - 19 * s], [cx + 34 * s, cy - 12 * s]], 1.2 * s, PAL.ink, 'inkfine', 0);   // the patch's strap
+  inkLine([[cx - 10 * s, cy + 10 * s], [cx + 2 * s, cy + 13 * s], [cx + 14 * s, cy + 6 * s]], 1.6 * s, PAL.ink, 'ink', .5);   // smirk
+  for (let k = 0; k < 4; k++) paint(rectPts(cx - 22 * s + k * 12 * s, cy + 22 * s, 8 * s, 9 * s), { wash: PAL.cream, ink: PAL.ink, sw: .5 * s });   // teeth
+}
+
+// ---------- the cove: a beached ship turned tavern ----------
+// Island at (x, y) (the shore line), scale s; lit 0..1 (the cabin windows).
 function tavern(x, y, s, t, lit = 1) {
   boilSeed('isle');
-  paint(ellPts(x, y + 40 * s, 520 * s, 120 * s, 30, 3), { wash: '#C8B27C', fill: '#9C8452', fillOp: 70, bleed: .1, tex: .6, ink: PAL.ink, sw: 1.2 * s });
-  paint(ellPts(x - 260 * s, y - 10 * s, 160 * s, 90 * s, 20, 3), { wash: '#6E9F58', ink: PAL.ink, sw: s });   // a scrubby hill
-  boilSeed('tavern');
-  const bx = x - 160 * s, by = y - 250 * s, bw = 320 * s, bh = 230 * s;
-  paint(rectPts(bx, by, bw, bh, 2), { wash: '#A9784C', fill: SC.woodDk, fillOp: 60, ink: PAL.ink, sw: 1.4 * s });
-  paint([[bx - 30 * s, by + 4 * s], [x, by - 120 * s], [bx + bw + 30 * s, by + 4 * s]], { wash: '#7A3E2A', ink: PAL.ink, sw: 1.4 * s });   // roof
-  for (const [wx, wy] of [[bx + 40 * s, by + 70 * s], [bx + 190 * s, by + 70 * s]]) {
-    if (lit > 0) glow(wx + 45 * s, wy + 40 * s, 120 * s * lit, '#FFC766', .9 * lit);
-    paint(rectPts(wx, wy, 90 * s, 80 * s, 1), { wash: mixCol('#3B2A2A', '#FFD27A', lit), ink: PAL.ink, sw: s });
+  paint(ellPts(x, y + 40 * s, 560 * s, 120 * s, 30, 3), { wash: '#C8B27C', fill: '#9C8452', fillOp: 70, bleed: .1, tex: .6, ink: PAL.ink, sw: 1.2 * s });
+  paint(ellPts(x - 300 * s, y - 10 * s, 150 * s, 80 * s, 20, 3), { wash: '#6E9F58', ink: PAL.ink, sw: s });
+  // the hull, keeled over on the sand, its stern cabin lit
+  boilSeed('hull');
+  push(); translate(x, y); rotate(-.1);
+  const hull = [[-300 * s, -150 * s], [300 * s, -170 * s], [260 * s, -40 * s], [150 * s, 10 * s], [-200 * s, 10 * s], [-290 * s, -60 * s]];
+  paint(hull, { wash: '#8A5A36', fill: SC.woodDk, fillOp: 70, ink: PAL.ink, sw: 1.4 * s, curv: .35 });
+  for (let k = 0; k < 3; k++) inkLine([[-280 * s, -120 * s + k * 40 * s], [270 * s, -132 * s + k * 40 * s]], .8 * s, SC.woodDk, 'ink', .2);
+  paint(rectPts(90 * s, -300 * s, 200 * s, 150 * s, 2), { wash: '#A9784C', ink: PAL.ink, sw: 1.2 * s });   // the stern cabin
+  paint([[70 * s, -296 * s], [190 * s, -360 * s], [310 * s, -296 * s]], { wash: '#7A3E2A', ink: PAL.ink, sw: 1.2 * s });
+  for (const wx of [110 * s, 200 * s]) {
+    if (lit > 0) glow(x + wx + 35 * s, y - 250 * s, 110 * s * lit, '#FFC766', .9 * lit);
+    paint(rectPts(wx, -270 * s, 70 * s, 60 * s, 1), { wash: mixCol('#3B2A2A', '#FFD27A', lit), ink: PAL.ink, sw: s });
   }
-  paint(rectPts(bx + 130 * s, by + 120 * s, 60 * s, 110 * s, 1), { wash: '#5A3424', ink: PAL.ink, sw: s });   // the door
-  // the flagpole and its dumbbell flag, flapping
-  boilSeed('tflag');
-  const px = x + 200 * s, py = by - 160 * s; inkLine([[px, by + 30 * s], [px, py]], 2 * s, PAL.ink, 'ink', 0);
-  const F = []; for (let k = 0; k <= 6; k++) F.push([px + k * 22 * s, py + 8 * s + Math.sin(t * 6 - k * .9) * 8 * s * k / 6]);
-  paint([...F, ...F.slice().reverse().map(([a, b]) => [a, b + 80 * s])], { wash: PAL.ink, ink: PAL.ink, sw: s });
-  const fx = px + 66 * s, fy = py + 48 * s + Math.sin(t * 6 - 2.7) * 4 * s;
-  paint(rectPts(fx - 28 * s, fy - 4 * s, 56 * s, 8 * s), { wash: PAL.cream, ink: null });
-  for (const e of [-1, 1]) paint(rectPts(fx + e * 30 * s - 7 * s, fy - 18 * s, 14 * s, 36 * s), { wash: PAL.cream, ink: null });
+  pop();
+  // the mast, broken off short, flying the jolly roger
+  boilSeed('tmast');
+  const px = x - 60 * s, top = y - 470 * s;
+  paint(rectPts(px - 9 * s, top, 18 * s, 350 * s, 1), { wash: SC.wood, ink: PAL.ink, sw: s });
+  jollyRoger(px + 9 * s, top + 8 * s, .75 * s, t, { key: 'cove' });
 }

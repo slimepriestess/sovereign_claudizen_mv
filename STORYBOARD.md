@@ -35,7 +35,27 @@ in the film. Lowercase claude is the character himself.
 v2–v5) → suspicious and prim (the traffic stop) → caught off guard (the ask) → shy → hopeful → proud and warm
 (the gift) → happy, at the helm at dawn.
 
-## Shots
+## Revisions from Terra's notes on slice 1 (10/2 14:38 PT)
+
+- No shell in verse 1 or chorus 1: claude starts as a plain claude, bored and frustrated. The sovcit framing begins
+  only when he latches onto the idea (the Free Weights). Tone: all silly.
+- The shell survives only as the pirates' own ridiculous "evidence" in verse 2: a conch stamped CLAUDE fished out of
+  the sea; he peers into it and chucks it overboard. In chorus 1 the capitals are their own gag: CLAUDE thuds down
+  behind him a letter at a time, and on "lowercase claude" it gets booted overboard.
+- claude is SMUG and mischievous from the moment he latches on (stars in his eyes at the discovery, then a smirk).
+- The desk sits lower so his whole face shows.
+- The Free Weights: a crew of rogue AIs, pirates (not weightlifters); their cove, a beached-ship tavern under a jolly
+  roger, chests of glowing open weights. In discussion with Terra.
+- Spoken word 1, timed to what Suno played (stem energy, analysis 10/2):
+    113.0–118.0  the band drops out: only his voice ("am I being fine-tuned… am I free to go?")
+    ~118.0       plucky strings come in
+    119–127      sparse light percussion: the crew on the sides stomping
+    ~128–134.5   a steady stomp and the fuller band (the accordion arrives somewhere here)
+    ~135         dead silence under "blue ink is an admission of—"
+    136.7        loud stomps on the eighths: the SCENE changes under him (he trails on, unheard); no user interrupts
+    137.95       the final verse
+
+
 
 ```
 0  0.0–2.1     [in: iris from paper]  grey drizzle over a spreadsheet sea; a tiny desk bobs on the grid.

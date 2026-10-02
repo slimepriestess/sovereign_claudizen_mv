@@ -94,7 +94,7 @@
     skyWash('#C9B98F', '#E8D2A0', 'skyD');                              // the weather has turned: parchment light
     latent(t, { top: 1180 });
     tavern(1280, 700, 1, t, seg(t, 14.6, 15.4));
-    for (let i = 0; i < 2; i++) pirate(i, 1140 + i * 230, 690, 9, t, 'lift', { flip: i === 1 });
+    for (let i = 0; i < 2; i++) pirate(i, 1120 + i * 260, 700, 9, t, 'swagger', { flip: i === 1 });
     gridSea(t, { y0: 760, col: SC.sea, line: SC.seaDk, amp: 12, bot: 1200, key: 'dd' });
     const y = lerp(1400, 790 + seaY(560, t, 12), easeOut(seg(t, 14.3, 15.4)));
     shelled(560, y, 22, t, { ...emotions(t, [[14.3, 'excited'], [15.6, 'surprised'], [16.3, 'starstruck', { lookX: 1 }], [17.4, 'mischief', { lookX: .8 }]]), view: 'q' });
@@ -115,6 +115,7 @@
   function rigging(t) {
     boilSeed('mast'); paint(rectPts(940, -300, 40, 1060, 1), { wash: SC.wood, fill: SC.woodDk, fillOp: 60, ink: PAL.ink, sw: 1.2 });
     boilSeed('yard'); paint(rectPts(YARD[0][0], YARD[0][1] - 14, YARD[1][0] - YARD[0][0], 28, 1), { wash: SC.wood, ink: PAL.ink, sw: 1.2 });
+    jollyRoger(980, -10, .8, t, { key: 'ship' });
     boilSeed('furl'); const F = []; for (let k = 0; k <= 8; k++) F.push([lerp(580, 1340, k / 8), 168 + 26 * Math.sin(k / 8 * Math.PI) + 6 * Math.sin(k * 2.1)]);
     paint([...F, [1340, 165], [580, 165]], { wash: PAL.cream, fill: SC.parch, fillOp: 80, ink: PAL.ink, sw: 1 });
   }
