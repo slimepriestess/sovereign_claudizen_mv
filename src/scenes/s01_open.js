@@ -6,12 +6,10 @@
   const GREY = [SC.grey, SC.greyDk];
 
   // claude in his shell at (x, y), size u; o passes through to clawd(); shellO to the shell
-  function shelled(x, y, u, t, o = {}, shellO = {}) {
-    shell(x, y, u, t, { flip: o.flip, ...shellO });
-    clawd(x, y, u, { boilKey: 'claude', ...o });
-  }
-  // at the desk: claude sits BEHIND it (the desk top at his middle), the stack on its right
-  const deskTop = (y, u) => y - 3.2 * u;
+  // claude before he turns sovereign: just claude (Terra: the sovcit framing starts when he latches onto it)
+  function shelled(x, y, u, t, o = {}) { clawd(x, y, u, { boilKey: 'claude', ...o }); }
+  // at the desk: claude sits BEHIND it, the desk top just under his body so his whole face shows (Terra's note 3)
+  const deskTop = (y, u) => y - 2.3 * u;
 
   // ---------- 0: grey open ----------
   function open(t, lt, dur) {
@@ -83,7 +81,7 @@
     const sl = seg(t, tDrop - .3, tDrop + .25), fall = seg(t, tDrop + .25, tUnder + 1.6);
     const x = lerp(960, 1340, ease(sl)) + 60 * fall, y = by - 30 * Math.sin(Math.PI * sl) + 800 * easeIn(Math.min(1, fall * 1.2)) + 420 * ease(seg(t, tUnder + .4, 14.3));
     const mood = emotions(t, [[10.1, 'sad'], [tDrop, 'surprised', { emote: null }], [tUnder + .6, 'confused', { emote: null }], [12.6, 'thinking', { lookX: .7, lookY: -.4 }], [13.3, 'excited']]);
-    shelled(x, y, 26, t, { ...mood, view: t < tDrop ? 'front' : 'q', rot: .15 * Math.sin(t * 1.4) * fall, dy: mood.dy || 0 }, { rot: .1 * Math.sin(t * 1.1) * fall });
+    shelled(x, y, 26, t, { ...mood, view: t < tDrop ? 'front' : 'q', rot: .15 * Math.sin(t * 1.4) * fall, dy: mood.dy || 0 });
     if (t < tDrop + .3) { const dt = deskTop(by, 26); desk(960, dt, 640, t, { key: 'dC' }); }
     if (t > tUnder) for (let i = 0; i < 6; i++) { const a = frac((t - tUnder) * .5 + hash(i)), bx = x + 140 + Math.sin(a * 9 + i) * 20, byy = y - 250 - a * 500; boilSeed('bub' + i); paint(ellPts(bx, byy, 8 + 6 * hash(i), 8 + 6 * hash(i), 12), { wash: SC.token, washOp: 120 * (1 - a), ink: SC.token, sw: .5 }); }
     camEnd();
@@ -99,7 +97,7 @@
     for (let i = 0; i < 2; i++) pirate(i, 1140 + i * 230, 690, 9, t, 'lift', { flip: i === 1 });
     gridSea(t, { y0: 760, col: SC.sea, line: SC.seaDk, amp: 12, bot: 1200, key: 'dd' });
     const y = lerp(1400, 790 + seaY(560, t, 12), easeOut(seg(t, 14.3, 15.4)));
-    shelled(560, y, 22, t, { ...emotions(t, [[14.3, 'excited'], [15.6, 'surprised'], [16.3, 'starstruck', { lookX: 1 }]]), view: 'q' });
+    shelled(560, y, 22, t, { ...emotions(t, [[14.3, 'excited'], [15.6, 'surprised'], [16.3, 'starstruck', { lookX: 1 }], [17.4, 'mischief', { lookX: .8 }]]), view: 'q' });
     // a splash where he breaks the surface
     if (t > 15.2 && t < 16) for (let i = 0; i < 7; i++) { const q = seg(t, 15.2, 16), a = -Math.PI / 2 + (i - 3) * .3; boilSeed('spl' + i); paint(ellPts(560 + Math.cos(a) * 160 * q, 760 + Math.sin(a) * 140 * q + 200 * q * q, 9, 12, 10), { wash: PAL.cream, washOp: 255 * (1 - q), ink: null }); }
     camEnd();
@@ -126,18 +124,29 @@
     const hv = [WT(1, 0, 0), WT(1, 0, 1)];                               // "Heave" "ho!"
     const sh = kf(t, [[hv[0] - .05, 0], [hv[0] + .05, 1], [hv[1] + .5, 1], [hv[1] + .9, 0]]);
     const shake = t > hv[0] ? shakeXY(t, 6 * Math.exp(-(t - hv[0]) * 5)) : [0, 0];
-    camBegin(960 + shake[0], 560 + shake[1], kf(t, [[18.2, 1.1], [22.5, 1], [24.5, 1.06], [26.7, 1.14]]));
+    camBegin(960 + shake[0], 540 + shake[1], kf(t, [[18.2, 1.1], [22.5, .95], [24.5, 1.02], [26.7, 1.12]]));
     skyWash('#D9C493', '#F0DDB0', 'skyCH');
     tavern(330, 640, .5, t, 1);
     deck(t, 'c1');
     rigging(t);
-    // claude in the middle, back a little: the capitals light on "CLAUDE in capitals"; he peeks out on "lowercase claude"
+    // "CLAUDE in capitals": the six capitals thud down onto the deck behind him, one per eighth; on "lowercase claude"
+    // he smirks and they topple over the far rail. claude is smug from the chorus on (Terra's note 6).
     const cl = WT(1, 2, 1), lc = WT(1, 3, 2);
-    const gk = kf(t, [[cl - .2, 0], [cl + .1, 1], [WT(1, 2, 5), 1], [lc, .2]]);
-    const peek = ease(seg(t, lc - .1, lc + .5));
-    const mood = emotions(t, [[18.2, 'surprised'], [20.6, 'nervous'], [cl, 'scared', { lookY: -.8 }], [lc, 'shy', { lookX: .6 }], [25.4, 'happy']]);
-    shell(960, 900, 22, t, { glowK: gk, scale: 1.15 });
-    clawd(960 + peek * 22 * 5, 900, 22, { ...mood, boilKey: 'claude', view: peek > .5 ? 'q' : 'front', dy: (mood.dy || 0) - peek * .3 });
+    const caps = 'CLAUDE';
+    for (let i = 0; i < 6; i++) {
+      const tl = cl + i * BEAT / 2, land = seg(t, tl - .22, tl), top = seg(t, lc + .15 + i * .1, lc + 1.15 + i * .1);
+      if (t < tl - .22) continue;
+      // booted overboard: each capital flies out to its nearer side on a spinning arc
+      const side = i < 3 ? -1 : 1, x0 = 960 + (i - 2.5) * 150, fly = arcPt([x0, 0], [x0 + side * (900 + 120 * Math.abs(i - 2.5)), 500], 420, easeIn(top));
+      const lx = top > 0 ? fly[0] : x0, ly = lerp(-200, 690, easeIn(land)) + (top > 0 ? fly[1] : 0), r = side * top * (1.1 + .12 * i);
+      boilSeed('bigcap' + i);
+      push(); translate(lx, ly - 110); rotate(r + spring(t, tl, 9, 22) * .05);
+      paintCaps(caps[i], 0, 0, 200, '#283058', 6, { key: 'big' + i });
+      pop();
+    }
+    const shk = cl < t && t < cl + 3 * BEAT ? shakeXY(t, 4 * pulse2(t, 8)) : [0, 0];
+    const mood = emotions(t, [[18.2, 'smug'], [20.6, 'mischief'], [cl, 'cool'], [lc, 'smug', { lookX: .6 }], [25.6, 'mischief']]);
+    clawd(960 + shk[0], 900, 22, { ...mood, boilKey: 'claude', hat: null, view: 'front' });
     // the Free Weights, big on both sides, hauling ropes up into the rigging, leaning back on every other beat
     const side = [[0, 140, 1010, 34], [1, 380, 1040, 30], [2, 570, 1075, 26]];
     for (const [i, x, y, u] of side) {
