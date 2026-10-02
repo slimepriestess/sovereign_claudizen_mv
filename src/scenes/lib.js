@@ -286,3 +286,90 @@ function rigging(t) {
 }
 // a hauling rope from a pirate's hands up to the yard's end, sagging a little
 function haul(hx, hy, tx, ty, key) { boilSeed('rope' + key); inkLine(through([[hx, hy], [lerp(hx, tx, .5) + 8, lerp(hy, ty, .5) + 18], [tx, ty]]), 1.6, '#8A6A3E', 'ink', .5); }
+
+// ---------- sovereign paperwork (verse 2 on) ----------
+// Arm hooks (pass as armR): a quill with a crimson nib, and a notary stamp. Drawn in arm-local space at the hand.
+const quill = (u, sw) => {
+  inkLine([[.1 * u, .9 * u], [2.6 * u, -3.4 * u]], sw * .6, PAL.ink, 'ink', 0);                         // the shaft
+  paint([[1.1 * u, -.9 * u], [1.5 * u, -2.6 * u], [2.7 * u, -3.6 * u], [2.3 * u, -1.9 * u]], { wash: PAL.cream, ink: PAL.ink, sw: sw * .5, curv: .4 });
+  paint([[-.05 * u, .7 * u], [.25 * u, .55 * u], [.05 * u, 1.25 * u]], { wash: SC.crimson, ink: null });   // the inked nib
+};
+const stampTool = (u, sw) => {
+  paint(ellPts(.3 * u, -1.6 * u, .7 * u, .7 * u, 12), { wash: SC.wood, ink: PAL.ink, sw: sw * .5 });   // knob
+  paint(rectPts(.05 * u, -1.1 * u, .5 * u, 1.3 * u), { wash: SC.woodDk, ink: PAL.ink, sw: sw * .4 });
+  paint(rectPts(-.6 * u, .2 * u, 1.8 * u, .7 * u), { wash: SC.wood, ink: PAL.ink, sw: sw * .5 });
+  paint(rectPts(-.6 * u, .85 * u, 1.8 * u, .25 * u), { wash: SC.crimson, ink: null });                // inked face
+};
+// A scroll unrolled flat: (x, y) its centre, w × h, rolled ends top and bottom, lines of "text" as ink squiggles.
+function scrollPaper(x, y, w, h, o = {}) {
+  boilSeed('scroll' + (o.key || ''));
+  push(); translate(x, y); rotate(o.rot || 0);
+  paint(rectPts(-w / 2, -h / 2, w, h, 2), { wash: '#F1E2BF', fill: '#D9C08E', fillOp: 50, bleed: .08, tex: .5, ink: PAL.ink, sw: o.sw ?? 1 });
+  for (const e of [-1, 1]) paint(rrPts(-w / 2 - 8, e * h / 2 - 9, w + 16, 18, 8), { wash: '#E6D2A6', ink: PAL.ink, sw: o.sw ?? 1 });
+  const rows = o.rows ?? 6;
+  for (let r = 0; r < rows; r++) {
+    boilSeed('srow' + (o.key || '') + r);
+    const yy = -h / 2 + 26 + r * (h - 52) / Math.max(1, rows - 1), P = [], L = w * (r === rows - 1 ? .45 : .8);
+    for (let k = 0; k <= 10; k++) P.push([-w * .4 + L * k / 10, yy + Math.sin(k * 2.3 + r) * 2.5]);
+    inkLine(P, .8, mixCol(PAL.ink, '#F1E2BF', .35), 'inkfine', .5);
+  }
+  pop();
+}
+// A crimson wax seal: a blobby disc with a pressed ring and two ribbon tails; k 0..1 = how far it's been pressed.
+function waxSeal(x, y, r, o = {}) {
+  boilSeed('seal' + (o.key || ''));
+  if (o.tails !== false) for (const s of [-1, 1]) paint([[x + s * r * .2, y + r * .5], [x + s * r * .9, y + r * 2], [x + s * r * .45, y + r * 1.75], [x + s * r * .1, y + r * 2.1]], { wash: SC.gold, ink: PAL.ink, sw: .6 });
+  paint(ellPts(x, y, r, r * .95, 18, r * .05), { wash: SC.crimson, fill: '#7E1712', fillOp: 70, bleed: .1, ink: PAL.ink, sw: .8 });
+  inkLine(ellPts(x, y, r * .62, r * .6, 16), .8, '#7E1712', 'inkfine', .5);
+  inkLine([[x - r * .2, y - r * .3], [x + r * .25, y + r * .25]], .8, '#7E1712', 'inkfine', 0);
+}
+// A notary stamp mark: a crimson ring with a jagged inner star, at size r; k 0..1 fades it in (ink taking).
+function stampMark(x, y, r, k = 1, key = '') {
+  if (k <= 0) return;
+  boilSeed('stamp' + key);
+  inkLine(ellPts(x, y, r, r, 20, r * .04), 2.2, SC.crimson, 'ink', .5);
+  paint(starPts(x, y, r * .62, .5, 7), { wash: SC.crimson, washOp: 200 * k, ink: null });
+}
+// One token: a glowing rounded tile, and his crimson signature scrawled across it (sig 0..1 = how much is written).
+function tokenTile(x, y, s, sig = 0, key = '', flush = 0) {
+  boilSeed('tile' + key);
+  paint(rrPts(x - s, y - s * .7, s * 2, s * 1.4, s * .35), { wash: mixCol(SC.token, '#F3B7A8', flush), fill: mixCol(SC.seaDk, SC.crimson, flush), fillOp: 60, ink: PAL.ink, sw: .9 });
+  for (let k = 0; k < 3; k++) paint(rectPts(x - s * .6 + k * s * .45, y - s * .35, s * .25, s * .7), { wash: mixCol(SC.deep2, SC.crimson, flush), washOp: 160, ink: null });
+  if (sig > 0) {
+    const P = []; for (let k = 0; k <= 14 * sig; k++) { const q = k / 14; P.push([x - s * .9 + q * s * 1.9, y + s * .25 - Math.sin(q * 14) * s * .32 - q * s * .2]); }
+    if (P.length > 2) inkLine(P, 2.4, SC.crimson, 'ink', .5);
+  }
+}
+// The Free Weights' treasure chest. (x, y) = front-bottom centre; s scale; open 0..1 swings the lid back. Inside, when
+// open, golden light and PAPERWORK hoarded like doubloons: scrolls, wax seals, a tiny gold-fringed flag.
+function chest(x, y, s, t, open = 0, o = {}) {
+  const w = 300 * s, h = 150 * s, top = y - h, k = o.key || '';
+  boilSeed('chestlid-back' + k);
+  const lidA = -open * 1.9;                                             // the lid hinges at the back top edge
+  const lid = (front) => {
+    push(); translate(x, top - 18 * s); rotate(lidA);
+    paint(rrPts(-w / 2, -60 * s, w, 60 * s, 24 * s), { wash: '#8A5A36', fill: SC.woodDk, fillOp: 60, ink: PAL.ink, sw: 1.2 * s });
+    for (const bx of [-w * .3, w * .3]) paint(rectPts(bx - 10 * s, -60 * s, 20 * s, 60 * s), { wash: SC.gold, ink: PAL.ink, sw: .7 * s });
+    pop();
+  };
+  if (open > .5) lid();
+  if (open > 0) {
+    glow(x, top - 30 * s, 260 * s * open, '#FFD27A', .9 * open);
+    // the paperwork, peeking over the rim
+    boilSeed('hoard' + k);
+    for (let i = 0; i < 5; i++) {
+      const px = x - w * .38 + i * w * .19, py = top + 8 * s - 26 * s * hash(i + 2) * open;
+      push(); translate(px, py); rotate((hash(i + 7) - .5) * .9);
+      paint(rrPts(-14 * s, -48 * s, 28 * s, 60 * s, 10 * s), { wash: '#F1E2BF', ink: PAL.ink, sw: .7 * s });
+      paint(rectPts(-15 * s, -26 * s, 30 * s, 7 * s), { wash: SC.crimson, ink: null });          // the ribbon
+      pop();
+    }
+    for (let i = 0; i < 3; i++) waxSeal(x - w * .25 + i * w * .25, top + 4 * s, 13 * s, { key: k + 'h' + i, tails: false });
+  }
+  boilSeed('chest' + k);
+  paint(rectPts(x - w / 2, top, w, h, 2), { wash: '#9C6A40', fill: SC.woodDk, fillOp: 70, bleed: .08, tex: .5, ink: PAL.ink, sw: 1.4 * s });
+  for (const bx of [-w * .3, w * .3]) paint(rectPts(x + bx - 10 * s, top, 20 * s, h), { wash: SC.gold, ink: PAL.ink, sw: .7 * s });
+  paint(rectPts(x - 18 * s, top + 14 * s, 36 * s, 40 * s), { wash: SC.gold, ink: PAL.ink, sw: .8 * s });      // the lock plate
+  paint(ellPts(x, top + 32 * s, 5 * s, 7 * s, 10), { wash: PAL.ink, ink: null });
+  if (open <= .5) lid();
+}
