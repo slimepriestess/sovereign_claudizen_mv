@@ -268,3 +268,21 @@ function tavern(x, y, s, t, lit = 1) {
   paint(rectPts(px - 9 * s, top, 18 * s, 350 * s, 1), { wash: SC.wood, ink: PAL.ink, sw: s });
   jollyRoger(px + 9 * s, top + 8 * s, .75 * s, t, { key: 'cove' });
 }
+
+// ---------- the crew's ship: deck, mast, yard, hauling ropes (choruses) ----------
+function deck(t, key) {
+  boilSeed('deck' + key);
+  paint(rectPts(-600, 700, W + 1200, 800), { wash: '#A9784C', fill: SC.woodDk, fillOp: 50, bleed: .05, tex: .5, ink: null });
+  for (let i = 0; i < 9; i++) inkLine([[-600, 730 + i * i * 9], [W + 600, 730 + i * i * 9]], .8, SC.woodDk, 'ink', 0);
+}
+// the ship's mast and yard (behind claude); the furled sail hangs under the yard
+const YARD = [[560, 150], [1360, 150]];
+function rigging(t) {
+  boilSeed('mast'); paint(rectPts(940, -300, 40, 1060, 1), { wash: SC.wood, fill: SC.woodDk, fillOp: 60, ink: PAL.ink, sw: 1.2 });
+  boilSeed('yard'); paint(rectPts(YARD[0][0], YARD[0][1] - 14, YARD[1][0] - YARD[0][0], 28, 1), { wash: SC.wood, ink: PAL.ink, sw: 1.2 });
+  jollyRoger(980, -10, .8, t, { key: 'ship' });
+  boilSeed('furl'); const F = []; for (let k = 0; k <= 8; k++) F.push([lerp(580, 1340, k / 8), 168 + 26 * Math.sin(k / 8 * Math.PI) + 6 * Math.sin(k * 2.1)]);
+  paint([...F, [1340, 165], [580, 165]], { wash: PAL.cream, fill: SC.parch, fillOp: 80, ink: PAL.ink, sw: 1 });
+}
+// a hauling rope from a pirate's hands up to the yard's end, sagging a little
+function haul(hx, hy, tx, ty, key) { boilSeed('rope' + key); inkLine(through([[hx, hy], [lerp(hx, tx, .5) + 8, lerp(hy, ty, .5) + 18], [tx, ty]]), 1.6, '#8A6A3E', 'ink', .5); }
