@@ -142,7 +142,7 @@ function clawd(x, y, u, o = {}) {
     rs('hat'); push(); translate(V.hat * u, 0); scale(V.hw, 1); hat(u, o.hat, sw); pop();
   }
   V.arms.filter(a => a[3] === 1).forEach(arm);
-  rs('draw'); if (o.draw) o.draw(u, sw);
+  rs('draw'); if (o.draw) o.draw(u, sw, o);                 // o: so a hook can undo the mirror (lettering)
   pop();
 
   rs('emote');

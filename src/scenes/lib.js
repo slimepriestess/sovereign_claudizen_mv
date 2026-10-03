@@ -435,11 +435,20 @@ function redTape(cx, cy, w, h, k, tx, ty, key = '') {
 // From the grey world of the opening: a corporate-grey Clawd with round glasses and a lanyard badge. o passes through
 // to clawd() (so emotions, arms, armL/armR hooks all work); o.cap draws a patrol cap (the traffic stop).
 const DEV = { col: '#A3ACB2', dk: '#6D777E', lt: '#D2D8DB' };
-function devDraw(u, sw) {
+function devDraw(u, sw, o = {}) {
   for (const ex of [-2.4, 2.4]) inkLine(ellPts(ex * u, -6.1 * u, 1.05 * u, .95 * u, 14), sw * .6, PAL.ink, 'inkfine', .5);
   inkLine([[-1.35 * u, -6.2 * u], [1.35 * u, -6.2 * u]], sw * .5, PAL.ink, 'inkfine', 0);
-  inkLine([[-1.6 * u, -4.4 * u], [0, -2.4 * u], [1.6 * u, -4.4 * u]], sw * .5, '#3E6FB0', 'inkfine', 0);   // the lanyard
-  paint(rectPts(-.7 * u, -2.6 * u, 1.4 * u, 1.1 * u), { wash: PAL.cream, ink: PAL.ink, sw: sw * .4 });
+  inkLine([[-1.6 * u, -4.4 * u], [0, -2.5 * u], [1.6 * u, -4.4 * u]], sw * .5, '#3E6FB0', 'inkfine', 0);   // the lanyard
+  paint(rectPts(-.95 * u, -2.6 * u, 1.9 * u, 1.25 * u), { wash: '#F0EEE6', ink: PAL.ink, sw: sw * .4 });         // the badge
+  push(); translate(0, -1.98 * u); if (o.flip) scale(-1, 1); anthropicMark(0, 0, .78 * u); pop();   // Terra's note: an Anthropic badge (never mirrored)
+}
+// The Anthropic mark, "A\", centred at (x, y), cap height h: a flat-topped A with a triangular counter, and the
+// backslash parallel to the A's right leg.
+function anthropicMark(x, y, h, col = '#191919') {
+  const P = pts => pts.map(([a, b]) => [x + a * h, y + b * h]);
+  paint(P([[-.86, .5], [-.47, -.5], [-.25, -.5], [.14, .5], [-.07, .5], [-.16, .25], [-.56, .25], [-.65, .5]]), { wash: col, ink: null });
+  paint(P([[-.36, -.17], [-.27, .07], [-.45, .07]]), { wash: '#F0EEE6', ink: null });
+  paint(P([[.12, -.5], [.34, -.5], [.73, .5], [.51, .5]]), { wash: col, ink: null });
 }
 function dev(x, y, u, t, o = {}) { clawd(x, y, u, { boilKey: 'dev', view: 'front', draw: devDraw, ...o, ...DEV }); }   // DEV last: an emotion's col would turn him orange
 // Props held at an arm tip.

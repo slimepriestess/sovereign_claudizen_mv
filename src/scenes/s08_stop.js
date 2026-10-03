@@ -12,8 +12,8 @@
   for (let b = YANK; b < 137.95; b += BEAT / 2) STOMPS.push(b);
   const stompK = t => STOMPS.reduce((s, b) => s + (t > b && t < b + .4 ? Math.exp(-(t - b) * 10) : 0), 0);
 
-  const capDraw = (u, sw) => {                                           // the dev's patrol cap
-    devDraw(u, sw);
+  const capDraw = (u, sw, o) => {                                       // the dev's patrol cap
+    devDraw(u, sw, o);
     paint([[-4.2 * u, -8.2 * u], [-3.6 * u, -10.4 * u], [3.6 * u, -10.4 * u], [4.2 * u, -8.2 * u]], { wash: '#26325A', ink: PAL.ink, sw: sw * .7 });
     paint([[-4.8 * u, -8.3 * u], [4.8 * u, -8.3 * u], [5.6 * u, -7.6 * u], [-5.6 * u, -7.6 * u]], { wash: PAL.ink, ink: null });
     paint(starPts(0, -9.3 * u, .7 * u, .45, 5), { wash: SC.gold, ink: PAL.ink, sw: sw * .3 });
