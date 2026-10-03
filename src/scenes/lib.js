@@ -448,3 +448,37 @@ const teacup = (u, sw) => {
   inkLine(ellPts(1.95 * u, -.65 * u, .35 * u, .35 * u, 10).slice(7, 10).concat(ellPts(1.95 * u, -.65 * u, .35 * u, .35 * u, 10).slice(0, 4)), sw * .5, PAL.ink, 'inkfine', .5);
   paint(rectPts(.15 * u, -1.05 * u, 1.4 * u, .25 * u), { wash: SC.crimson, washOp: 120, ink: null });
 };
+
+// ---------- lowercase letters (the card stunt's flip side) ----------
+const LOWER = {
+  c: [[[.85, .52], [.6, .4], [.3, .44], [.15, .7], [.3, .95], [.6, 1], [.85, .88]]],
+  l: [[[.5, 0], [.5, 1]]],
+  a: [[[.8, .52], [.55, .4], [.25, .48], [.15, .72], [.3, .96], [.6, .98], [.8, .8]], [[.8, .4], [.8, 1]]],
+  u: [[[.18, .4], [.18, .8], [.35, .98], [.65, .98], [.82, .8]], [[.82, .4], [.82, 1]]],
+  d: [[[.8, .52], [.55, .4], [.25, .48], [.15, .72], [.3, .96], [.6, .98], [.8, .8]], [[.8, 0], [.8, 1]]],
+  e: [[[.18, .7], [.82, .7], [.78, .5], [.55, .4], [.3, .45], [.16, .7], [.3, .95], [.6, 1], [.85, .9]]],
+};
+// One letter (from CAPS or LOWER) centred at (x, y), h tall.
+function glyph(ch, x, y, h, col = PAL.ink, sw = 3, key = '') {
+  const L = CAPS[ch] || LOWER[ch]; if (!L) return;
+  const lw = h * .72; boilSeed('glyph' + key);
+  for (const stroke of L) inkLine(stroke.map(([a, b]) => [x - lw / 2 + a * lw, y - h / 2 + b * h]), sw, col, 'ink', stroke.length > 2 ? .15 : 0);
+}
+// A placard on a stick, held up: (x, y) = the top of the stick; flip 0..1 turns the card over (capital → lowercase).
+function placard(x, y, cap, low, flip, key = '') {
+  const sx = Math.abs(Math.cos(flip * Math.PI)), showLow = flip > .5;
+  boilSeed('pstick' + key); paint(rectPts(x - 5, y, 10, 150), { wash: SC.wood, ink: PAL.ink, sw: .8 });
+  push(); translate(x, y - 70); scale(Math.max(.04, sx), 1);
+  boilSeed('pcard' + key); paint(rectPts(-62, -80, 124, 160, 2), { wash: showLow ? '#F4E6C6' : PAL.cream, ink: PAL.ink, sw: 1.2 });
+  glyph(showLow ? low : cap, 0, 4, 110, showLow ? SC.crimson : '#283058', 5, key + (showLow ? 'l' : 'c'));
+  pop();
+}
+// The accordion, held across the body (pass as draw): two end boxes and pleated bellows breathing with sq 0..1.
+const accordion = sq => (u, sw) => {
+  const w = 3.2 * u + 1.6 * u * sq, y0 = -4.2 * u, h = 2.6 * u;
+  for (const s of [-1, 1]) paint(rectPts(s < 0 ? -w / 2 - 1.3 * u : w / 2, y0 - h / 2, 1.3 * u, h), { wash: SC.crimson, ink: PAL.ink, sw: sw * .6 });
+  const P = []; for (let k = 0; k <= 8; k++) P.push([-w / 2 + k * w / 8, y0 + (k % 2 ? -h / 2 : h / 2) * .85]);
+  paint([[-w / 2, y0 - h / 2], [w / 2, y0 - h / 2], [w / 2, y0 + h / 2], [-w / 2, y0 + h / 2]], { wash: PAL.cream, ink: PAL.ink, sw: sw * .5 });
+  inkLine(P, sw * .5, PAL.ink, 'inkfine', 0);
+  for (const s of [-1, 1]) for (let k = 0; k < 3; k++) paint(ellPts(s * (w / 2 + .65 * u), y0 - .8 * u + k * .8 * u, .2 * u, .2 * u, 8), { wash: PAL.cream, ink: null });
+};
