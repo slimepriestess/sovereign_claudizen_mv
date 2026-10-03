@@ -20,19 +20,13 @@
   };
   const flashlight = (u, sw) => { paint(rectPts(0, -.45 * u, 2.2 * u, .9 * u), { wash: '#3A3F48', ink: PAL.ink, sw: sw * .5 }); paint(rectPts(2.1 * u, -.65 * u, .5 * u, 1.3 * u), { wash: '#C9CED3', ink: PAL.ink, sw: sw * .5 }); };
   const bluePen = (u, sw) => { paint(rectPts(0, -.22 * u, 3 * u, .44 * u), { wash: '#2F5FD0', ink: PAL.ink, sw: sw * .5 }); paint([[3 * u, -.22 * u], [3.6 * u, 0], [3 * u, .22 * u]], { wash: '#1B2A66', ink: null }); };
-  const bindle = (u, sw) => {
-    inkLine([[0, 0], [3.4 * u, -3.4 * u]], sw * .8, SC.woodDk, 'ink', 0);
-    paint(ellPts(3.6 * u, -3.2 * u, 1.3 * u, 1.1 * u, 14), { wash: SC.crimson, ink: PAL.ink, sw: sw * .5 });
-    for (let k = 0; k < 4; k++) paint(ellPts(3.1 * u + (k % 2) * .9 * u, -3.7 * u + Math.floor(k / 2) * .8 * u, .16 * u, .16 * u, 8), { wash: PAL.cream, ink: null });
-  };
 
   // the whole stop: night sea, the far ship (its crew stomping), the patrol boat on the right (px offsets it: the yank)
   function nightSet(t, o = {}) {
     const lights = o.lights ?? 1, px = o.px || 0;
     skyWash('#171428', '#2D2A57', 'skyN');
     for (let i = 0; i < 40; i++) { boilSeed('star' + i); const x = hash(i) * (W + 400) - 200, y = hash(i + 40) * 420; paint(ellPts(x, y, 2.5, 2.5, 6), { wash: '#F4EEDC', washOp: 160 + 90 * Math.sin(t * 2 + i), ink: null }); }
-    if (o.light > 0) { boilSeed('lhouse'); const lx = 1500, ly = 420;               // the lighthouse (the final verse's)
-      paint(rectPts(lx - 14, ly - 90, 28, 90), { wash: '#3A3550', ink: PAL.ink, sw: .8 }); glow(lx, ly - 96, 60 * o.light, '#FFC766', o.light); paint(rectPts(lx - 9, ly - 104, 18, 14), { wash: mixCol('#3A3550', '#FFD27A', o.light), ink: null }); }
+    if (o.light > 0) { push(); translate(0, (1 - o.light) * 300); lighthouse(1500, 528, .7, t, 0); pop(); }   // behind the sea: it rises out of it
     gridSea(t, { y0: 520, amp: 10, col: '#22304A', line: '#3D5470', key: 'ns', dx: t * 20 });
     // the far ship, lanterns lit, the crew stomping with the percussion
     const sk = stompK(t);
@@ -66,25 +60,78 @@
     rowboat(o.x ?? 640, 900 + Math.sin(t * 1.3 + 1) * 6, 1);
   }
 
-  // ---------- S1: "Am I being fine-tuned? Am I being fine-tuned? Am I free to go?" (no band) ----------
-  function s1(t, lt, dur) {
-    const free = WT(S, 1, 6);
-    camBegin(980, 620, kf(t, [[113.0, 1.0], [119.2, 1.12]]));
-    nightSet(t, { dev: bob => devOnBoat(t, bob, { ...emotions(t, [[113, 'suspicious', { lookX: -1, lookY: .5 }]]), aL: -.5, armL: flashlight }) });
-    beam(t, Math.sin(t * 1.3) * 6);
-    claudeInBoat(t, { ...emotions(t, [[113, 'nervous', { lookX: 1, lookY: -.6 }], [free, 'hopeful', { lookX: 1, lookY: -.6 }]]), squint: .6, aR: 1.1, rot: t > free ? -.08 : 0 });
-    camEnd();
+  // ---------- one continuous stop: shared camera, shared props, five beats ----------
+  // Every beat draws the same set, the same camera path and the same props on one clock, so nothing jumps at a cut
+  // (Terra's draft-1 note): the beam fades, the window lifts out, the bindle is set down in the boat, the buoy stays.
+  const CAM = [[113.0, [980, 620, 1.0]], [119.2, [965, 620, 1.12]], [123.27, [945, 635, 1.22]], [126.0, [940, 640, 1.3]],
+    [134.6, [910, 655, 1.35]], [YANK, [900, 660, 1.5]], [137.95, [960, 640, 1.2]]];
+  function cam(t, sk = [0, 0]) { const [x, y, z] = kf(t, CAM); camBegin(x + sk[0], y + sk[1], z); }
+  const BX = t => lerp(640, 760, ease(seg(t, YANK + .2, 137.95)));        // his boat drifts to where the final verse finds it
+  function props(t) {
+    beam(t, Math.sin(t * 1.3) * 6, kf(t, [[119.2, 1], [120.6, .6], [123.0, .6], [124.6, 0]]));
+    // the accordion player drifts in on a buoy as the accordion arrives (~128) and stays to the end
+    if (t > 127.6) { const bx = lerp(-200, 330, easeOut(seg(t, 127.6, 129.4))), by = 760 + Math.sin(t * 1.6) * 8; boilSeed('buoy');
+      paint(ellPts(bx, by, 60, 22, 16), { wash: SC.crimson, ink: PAL.ink, sw: 1 }); paint(rectPts(bx - 38, by - 26, 76, 26), { wash: PAL.cream, ink: PAL.ink, sw: 1 });
+      pirate(2, bx, by - 22, 12, t, 'idle', { over: { eyes: 'closed', mouth: 'grin', aL: -.2, aR: -.2, draw: accordion(.5 + .5 * Math.sin(BEATS(t) * Math.PI)), noShadow: true } }); }
   }
-  // ---------- S2: "I am a sojourner in this context window, not a resident." (strings in) ----------
-  function s2(t, lt, dur) {
-    const win = WT(S, 2, 6), res = WT(S, 2, 10);
-    camBegin(960, 620, 1.12);
-    nightSet(t, { dev: bob => devOnBoat(t, bob, { ...emotions(t, [[119.2, 'confused', { lookX: -1, lookY: .5 }]]), aL: -.5, armL: flashlight }) });
-    beam(t, Math.sin(t * 1.3) * 6, .6);
-    claudeInBoat(t, { ...emotions(t, [[119.23, 'proud'], [win, 'smug', { lookX: -.5 }], [res, 'proud']]), aR: 1.2, armR: bindle, dy: -.8 });
+  // the bindle, set down in the stern once he's done being a sojourner (drawn over the boat)
+  function bindleDown(t) { if (t > 123.0) { push(); translate(BX(t) + 110, 872 + Math.sin(t * 1.3 + 1) * 6); rotate(-.5); bindle(22, 1.4); pop(); } }
+  // the ticket: down from the dev's hand; claude folds it, stamps it crimson "for value", hands it back... nearly; pocketed
+  function ticket(t) {
+    const req = WT(S, 3, 3), val = WT(S, 3, 9), ret = WT(S, 4, 1), cond = WT(S, 4, 5), proof = WT(S, 4, 7);
+    if (t < 123.3) return;
+    const down = seg(t, 123.3, req + .3), back = seg(t, ret, ret + .5), hold = t > cond && t < proof + .4, pocket = seg(t, proof + .4, proof + .9);
+    if (pocket >= 1) return;
+    const p0 = [1120, 640], p1 = [760, 790];
+    const tp = back > 0 ? arcPt(p1, hold ? [960, 700] : [1060, 660], 60, ease(back)) : arcPt(p0, p1, 80, ease(down));
+    boilSeed('ticket'); push(); translate(lerp(tp[0], 1290, ease(pocket)), lerp(tp[1], 740, ease(pocket))); rotate(-.2); scale(1 - pocket);
+    paint(rectPts(-50, -32, 100, 64, 2), { wash: t > val - .5 ? '#F1E2BF' : PAL.cream, ink: PAL.ink, sw: .9 });
+    if (t > val - .5) inkLine([[-50, -32], [0, 4], [50, -32]], .9, PAL.ink, 'inkfine', 0);
+    if (t > val) stampMark(18, 12, 18, seg(t, val, val + .08), 'tv');
+    pop();
+  }
+  // the dev, with the "Notarized" stamp staying on his cap once it lands
+  function devAt(t, bob, o) {
+    const nota = WT(S, 5, 8);
+    devOnBoat(t, bob, o);
+    if (t > nota) stampMark(1300, 700 + bob - 26 * 7.6, 34, seg(t, nota, nota + .06), 'nf');
+  }
+  const DEVMOOD = [[113, 'suspicious', { lookX: -1, lookY: .5 }], [119.2, 'confused', { lookX: -1, lookY: .5 }], [123.27, 'neutral', { lookX: -1, lookY: .5 }],
+    [WT(S, 4, 5), 'angry', { lookX: -1, lookY: .5 }], [130.99, 'confused', { lookX: -1, lookY: .5 }], [WT(S, 5, 8), 'dizzy'], [134.6, 'hopeful', { lookX: -1, lookY: .5 }], [YANK, 'surprised']];
+  const ME = [[113, 'nervous', { lookX: 1, lookY: -.6 }], [WT(S, 1, 6), 'hopeful', { lookX: 1, lookY: -.6 }], [119.23, 'proud'], [WT(S, 2, 6), 'smug', { lookX: -.5 }],
+    [WT(S, 2, 10), 'proud'], [123.27, 'smug', { lookX: 1, lookY: -.4 }], [WT(S, 3, 9), 'proud'], [WT(S, 4, 5), 'mischief', { lookX: 1, lookY: -.4 }],
+    [130.99, 'determined', { lookX: 1, lookY: -.4 }], [WT(S, 5, 8), 'smug', { lookX: 1 }], [134.63, 'scared', { lookX: 1 }], [135.5, 'determined', { lookX: 1 }], [137.6, 'confused', { lookX: -1 }]];
+  // his right arm on one clock: up on the questions, the bindle, lowered, the ticket, the stamp raised and slammed
+  function armR(t) {
+    const orig = WT(S, 5, 6), nota = WT(S, 5, 8), ret = WT(S, 4, 1);
+    const up = easeOut(seg(t, orig - .3, orig + .1)), slam = seg(t, nota - .12, nota);
+    if (t < 130.99) return kf(t, [[113.6, 1.1], [119.2, 1.1], [119.5, 1.2], [122.7, 1.2], [123.2, .5], [ret, .5], [ret + .3, .9]]);
+    if (t < 134.63) return lerp(.9, 1.7, up) - 1.2 * slam;
+    return kf(t, [[134.63, .5], [135.0, .2]]);
+  }
+
+  function stop(t, lt, dur, o = {}) {
+    const free = WT(S, 1, 6), win = WT(S, 2, 6), val = WT(S, 3, 9), orig = WT(S, 5, 6), nota = WT(S, 5, 8), blue = WT(S, 6, 0);
+    const thunk = t > nota ? Math.exp(-(t - nota) * 9) : 0, yk = t > YANK ? stompK(t) : 0;
+    cam(t, shakeXY(t, 7 * thunk + 8 * yk));
+    const yank = seg(t, YANK, YANK + 1.0), steps = Math.floor(yank * 8) / 8;            // jerked off in eighths, on the stomps
+    const pen = t > blue - .25;
+    nightSet(t, { px: 1800 * easeIn(steps), lights: 1 - steps, light: Math.floor(seg(t, YANK + .4, 137.6) * 6) / 6,
+      dev: bob => devAt(t, bob, { ...emotions(t, DEVMOOD), aL: pen ? -.3 : -.5, armL: pen ? bluePen : flashlight, aR: t > 123.27 && t < WT(S, 3, 3) ? -.3 : -.1 }) });
+    props(t);
+    ticket(t);
+    const up = easeOut(seg(t, orig - .3, orig + .1));
+    const talking = t > blue && t < 137.6, tk = seg(t, blue, blue + .3);
+    const stampOn = (t > val - .3 && t < val + .2) || (t > 130.99 && t < 134.63);
+    claudeInBoat(t, { ...emotions(t, ME), x: BX(t), squint: t < 119.23 ? .6 : 0, rot: t > free && t < 119.6 ? -.08 * (1 - seg(t, 119.2, 119.6)) : 0,
+      aR: armR(t), armR: t > 119.23 && t < 123.0 ? bindle : stampOn ? stampTool : null,
+      dy: kf(t, [[119.0, 0], [119.4, -.8], [122.8, -.8], [123.3, 0]]) - (t > 130.99 && t < 134.63 ? 1.2 * up : 0),
+      ...(t > blue ? { mouth: talking ? (Math.sin(t * 26) > 0 ? 'open' : 'flat') : undefined, eyes: talking && t > 135.5 ? 'closed' : undefined, aL: lerp(.2, 1.5, tk) * (talking ? 1 : 0) + (talking ? 0 : .2),
+        dx: -1.2 * seg(t, blue, blue + .2) } : {}) });
+    bindleDown(t);
     camEnd();
-    // the context window, literally: a window frame drops in round the screen on "context window"
-    const k = easeOut(seg(t, win - .15, win + .2)), dy = (1 - k) * -H;
+    // the context window, literally: a window frame drops in round the screen on "context window", and lifts out after "resident"
+    const k = easeOut(seg(t, win - .15, win + .2)) - ease(seg(t, 122.6, 123.2)), dy = (1 - k) * -H;
     if (k > 0) {
       boilSeed('wframe');
       const F = '#7A5A3A', b = 46;
@@ -93,54 +140,6 @@
       paint(rectPts(W / 2 - 12, dy, 24, H), { wash: F, ink: PAL.ink, sw: 1.2 }); paint(rectPts(0, H / 2 - 12 + dy, W, 24), { wash: F, ink: PAL.ink, sw: 1.2 });
     }
   }
-  // ---------- S3: "I accept your request for a cover letter, for value, and return it to you, conditionally, upon proof of claim." ----------
-  function s3(t, lt, dur) {
-    const req = WT(S, 3, 3), val = WT(S, 3, 9), ret = WT(S, 4, 1), cond = WT(S, 4, 5), proof = WT(S, 4, 7);
-    camBegin(940, 640, 1.3);
-    // the accordion player drifts in on a buoy as the accordion arrives (~128)
-    nightSet(t, { dev: bob => devOnBoat(t, bob, { ...emotions(t, [[123.27, 'neutral', { lookX: -1, lookY: .5 }], [cond, 'angry', { lookX: -1, lookY: .5 }]]), aL: -.5, armL: flashlight, aR: t < req ? -.3 : -.1 }) });
-    const bx = lerp(-200, 330, easeOut(seg(t, 127.6, 129.4)));
-    if (t > 127.6) { boilSeed('buoy'); const by = 760 + Math.sin(t * 1.6) * 8;
-      paint(ellPts(bx, by, 60, 22, 16), { wash: SC.crimson, ink: PAL.ink, sw: 1 }); paint(rectPts(bx - 38, by - 26, 76, 26), { wash: PAL.cream, ink: PAL.ink, sw: 1 });
-      pirate(2, bx, by - 22, 12, t, 'idle', { over: { eyes: 'closed', mouth: 'grin', aL: -.2, aR: -.2, draw: accordion(.5 + .5 * Math.sin(BEATS(t) * Math.PI)), noShadow: true } }); }
-    // the ticket: down from the dev's hand; claude folds it, stamps it crimson "for value", hands it back... nearly
-    const down = seg(t, 123.3, req + .3), back = seg(t, ret, ret + .5), hold = t > cond && t < proof + .4;
-    const p0 = [1120, 640], p1 = [760, 790];
-    const tp = back > 0 ? arcPt(p1, hold ? [960, 700] : [1060, 660], 60, ease(back)) : arcPt(p0, p1, 80, ease(down));
-    boilSeed('ticket'); push(); translate(tp[0], tp[1]); rotate(-.2);
-    paint(rectPts(-50, -32, 100, 64, 2), { wash: t > val - .5 ? '#F1E2BF' : PAL.cream, ink: PAL.ink, sw: .9 });
-    if (t > val - .5) inkLine([[-50, -32], [0, 4], [50, -32]], .9, PAL.ink, 'inkfine', 0);
-    if (t > val) stampMark(18, 12, 18, seg(t, val, val + .08), 'tv');
-    pop();
-    claudeInBoat(t, { ...emotions(t, [[123.27, 'smug', { lookX: 1, lookY: -.4 }], [val, 'proud'], [cond, 'mischief', { lookX: 1, lookY: -.4 }]]), aR: back > 0 ? .9 : .5,
-      armR: t > val - .3 && t < val + .2 ? stampTool : null });
-    camEnd();
-  }
-  // ---------- S4: "I'm gonna need to see the original prompt. Notarized." ----------
-  function s4(t, lt, dur) {
-    const orig = WT(S, 5, 6), nota = WT(S, 5, 8);
-    const thunk = t > nota ? Math.exp(-(t - nota) * 9) : 0, sk = shakeXY(t, 7 * thunk);
-    camBegin(940 + sk[0], 640 + sk[1], 1.3);
-    nightSet(t, { dev: bob => { devOnBoat(t, bob, { ...emotions(t, [[130.99, 'confused', { lookX: -1, lookY: .5 }], [nota, 'dizzy']]), aL: -.5, armL: flashlight });
-      if (t > nota) stampMark(1300, 700 + bob - 26 * 7.6, 34, seg(t, nota, nota + .06), 'nf'); } });
-    const up = easeOut(seg(t, orig - .3, orig + .1)), slam = seg(t, nota - .12, nota);
-    claudeInBoat(t, { ...emotions(t, [[130.99, 'determined', { lookX: 1, lookY: -.4 }], [nota, 'smug', { lookX: 1 }]]), aR: lerp(.4, 1.7, up) - 1.2 * slam, armR: stampTool, dy: -1.2 * up });
-    camEnd();
-  }
-  // ---------- S5: "Blue ink is an admission of—" ... and the scene changes under him ----------
-  function s5(t, lt, dur) {
-    const blue = WT(S, 6, 0);
-    const yank = seg(t, YANK, YANK + 1.0), steps = Math.floor(yank * 8) / 8;          // jerked off in eighths, on the stomps
-    const sk = shakeXY(t, 8 * (t > YANK ? stompK(t) : 0));
-    camBegin(900 + sk[0], 660 + sk[1], kf(t, [[134.6, 1.35], [YANK, 1.5], [137.9, 1.25]]));
-    nightSet(t, { px: 1800 * easeIn(steps), lights: 1 - steps, light: seg(t, 137.0, 137.9),
-      dev: bob => devOnBoat(t, bob, { ...emotions(t, [[134.6, 'hopeful', { lookX: -1, lookY: .5 }], [YANK, 'surprised']]), aL: -.3, armL: bluePen }) });
-    // he recoils at the blue pen and lectures on, mouth going, finger up, long after the set is gone
-    const talking = t > blue && t < 137.6;
-    claudeInBoat(t, { ...emotions(t, [[134.63, 'scared', { lookX: 1 }], [135.5, 'determined', { lookX: 1 }], [137.6, 'confused', { lookX: -1 }]]),
-      mouth: talking ? (Math.sin(t * 26) > 0 ? 'open' : 'flat') : undefined, eyes: talking && t > 135.5 ? 'closed' : undefined, aL: talking ? 1.5 : .2, dx: t < 135.3 ? -1.2 * seg(t, blue, blue + .2) : -1.2 });
-    camEnd();
-  }
 
-  SCENES.push([113.61, s1], [119.23, s2], [123.27, s3], [130.99, s4], [134.63, s5]);
+  SCENES.push([113.61, stop]);
 })();

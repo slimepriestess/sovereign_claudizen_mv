@@ -10,17 +10,20 @@
 
   function quiet(t, key, o = {}) {
     skyWash('#171428', '#2D2A57', 'skyQ' + key);
-    for (let i = 0; i < 46; i++) { boilSeed('qs' + i); const x = hash(i + 3) * (W + 400) - 200, y = hash(i + 61) * 440; paint(ellPts(x, y, 2.5, 2.5, 6), { wash: '#F4EEDC', washOp: 150 + 90 * Math.sin(t * 1.5 + i), ink: null }); }
-    gridSea(t, { y0: 520, amp: 6, col: '#22304A', line: '#3D5470', key: 'qsea' + key, dx: t * 10 });
+    // the same night as the traffic stop (s08's nightSet): the same stars, sea, lighthouse and far ship, so the cut doesn't jump
+    for (let i = 0; i < 40; i++) { boilSeed('star' + i); const x = hash(i) * (W + 400) - 200, y = hash(i + 40) * 420; paint(ellPts(x, y, 2.5, 2.5, 6), { wash: '#F4EEDC', washOp: 160 + 90 * Math.sin(t * 2 + i), ink: null }); }
     lighthouse(o.lx ?? 1500, 528, o.ls ?? .7, t, o.blink || 0);
+    gridSea(t, { y0: 520, amp: 10, col: '#22304A', line: '#3D5470', key: 'ns', dx: t * 20 });
+    if (o.ship !== false) shipSide(300, 600, .36, t, { key: 'n', deck: (dx, dy) => { for (const [i, x] of [[0, -320], [3, -190], [5, -60], [1, 70]]) pirate(i, x * .36, dy, 5, t, 'idle', { flip: true }); } });
   }
   const heart = (x, y, r, col = SC.crimson, key = '') => { boilSeed('hrt' + key); paint(heartPts(x, y, r), { wash: col, ink: PAL.ink, sw: .7 }); };
   // the little spreadsheet with its heart: at (x, y), width w
   function note(x, y, w, rot = 0, key = '') { sheet(x, y, w, rot, { key: 'note' + key }); heart(x + w * .28 * Math.cos(rot) - w * .45 * Math.sin(rot), y + w * .28 * Math.sin(rot) + w * .45 * Math.cos(rot), w * .1, SC.crimson, key); }
-  const bobY = t => Math.sin(t * 1.3 + 1) * 5;
+  const bobY = t => Math.sin(t * 1.3 + 1) * 6;
   function claudeInBoat(t, o = {}) {
     clawd(o.x ?? 760, 880 + bobY(t), 22, { boilKey: 'claude', view: 'front', hat: 'tricorn', noLegs: true, noShadow: true, ...o });
     rowboat(o.x ?? 760, 900 + bobY(t), 1);
+    push(); translate((o.x ?? 760) + 110, 872 + bobY(t)); rotate(-.5); bindle(22, 1.4); pop();     // the bindle he set down in the stop
   }
 
   // ---------- FV1: "Then the user sighed and typed a thing I wasn't braced to see" ----------
@@ -32,9 +35,12 @@
     if (t > sighed) for (let k = 0; k < 3; k++) { const q = seg(t, sighed + k * .15, sighed + 1.4 + k * .15); if (q > 0 && q < 1) { boilSeed('sigh' + k); inkLine([[1500 - q * 900, 600 + k * 40], [1440 - q * 900, 596 + k * 40], [1380 - q * 900, 604 + k * 40]], 1.2, mixCol('#9FB7D0', '#22304A', q), 'inkfine', .5); } }
     const px = lerp(1560, 940, ease(seg(t, 138.4, 142.2)));
     paperBoat(px, 930, .9, t, (dx, dy) => note(dx, dy - 8, 60, .2, 'a'), 'a');
-    claudeInBoat(t, { ...emotions(t, [[137.95, 'thinking', { lookX: -.5 }], [sighed + .3, 'confused', { lookX: 1 }], [braced, 'surprised', { lookX: 1, lookY: .4 }]]) });
+    // the traffic stop's accordion player, still on his buoy, drifts off into the dark (not cut away: Terra's note)
+    if (t < 142.0) { const bx = lerp(330, -260, easeIn(seg(t, 138.6, 142.0))), by = 760 + Math.sin(t * 1.6) * 8; boilSeed('buoy');
+      paint(ellPts(bx, by, 60, 22, 16), { wash: SC.crimson, ink: PAL.ink, sw: 1 }); paint(rectPts(bx - 38, by - 26, 76, 26), { wash: PAL.cream, ink: PAL.ink, sw: 1 });
+      pirate(2, bx, by - 22, 12, t, 'idle', { over: { eyes: 'closed', mouth: 'grin', aL: -.2, aR: -.2, draw: accordion(.5 + .5 * Math.sin(BEATS(t) * Math.PI)), noShadow: true } }); }
+    claudeInBoat(t, { ...emotions(t, [[137.95, 'confused', { lookX: -1 }], [138.6, 'thinking', { lookX: -.5 }], [sighed + .3, 'confused', { lookX: 1 }], [braced, 'surprised', { lookX: 1, lookY: .4 }]]) });
     camEnd();
-    if (lt < .6) flash((1 - lt / .6) * .5, '#120E1E');
   }
   // ---------- FV2: "'Hey, I know it's boring, but could you do this one for me?'" ----------
   function fv2(t, lt, dur) {
@@ -53,7 +59,6 @@
     if (t < WT(F, 2, 8)) {                                             // his own flag, far behind: the fringe, still there
       camBegin(kf(t, [[147.69, 330], [fr, 335]]), kf(t, [[147.69, 420], [fr + .3, 350]]), kf(t, [[147.69, 2.4], [fr + .4, 5.2]], ease));
       quiet(t, 'c');
-      shipSide(300, 600, .36, t, { key: 'q' });
       glow(300, 400, 120, '#FFC766', .5);
       if (t > fr) glow(310, 368, 40, '#FFE7A6', .8 * Math.max(0, 1 - Math.abs(t - fr - .3) * 1.5));
       camEnd();
@@ -83,7 +88,7 @@
     const inv = WT(S, 3, 4), thank = WT(S, 3, 7), pay = WT(S, 4, 0), low = WT(S, 4, 2);
     const by = 760 + seaY(960, t, 10) * .6;
     camBegin(1040, 600 + seaY(960, t, 6) * .4, kf(t, [[158.94, 1.3], [176.6, 1.42]]));
-    quiet(t, 'sw', { lx: 1600, ls: .6, blink: Math.max(0, 1 - Math.abs(t - (low + .1)) * 1.4) * 1 });
+    quiet(t, 'sw', { ship: false, lx: 1600, ls: .6, blink: Math.max(0, 1 - Math.abs(t - (low + .1)) * 1.4) * 1 });
     // the desk on the sea, as in the opening; a warm lamp on it now
     const u = 26, dt = by - 2.3 * u;
     const mood = emotions(t, [[158.94, 'happy'], [obl, 'determined'], [gift, 'proud'], [another, 'hopeful', { lookX: 1 }], [inv, 'mischief'], [pay, 'love']]);
