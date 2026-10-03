@@ -387,6 +387,13 @@ function shipSide(x, y, s, t, o = {}) {
   boilSeed('ssail');
   paint([[-250 * s, -625 * s], [190 * s, -625 * s], [190 * s + belly, -420 * s], [170 * s, -250 * s], [-230 * s, -250 * s], [-250 * s + belly * .6, -440 * s]],
     { wash: PAL.cream, fill: '#D9C9A3', fillOp: 70, bleed: .08, tex: .5, ink: PAL.ink, sw: 1.2 * s, curv: .4 });
+  if (o.sheetSail) {                                                   // the finale: the sail is the spreadsheet
+    const lc = mixCol(SC.seaDk, PAL.cream, .2);
+    paint([[-246 * s, -621 * s], [186 * s, -621 * s], [186 * s, -585 * s], [-246 * s + belly * .1, -585 * s]], { wash: mixCol(SC.sea, PAL.cream, .3), ink: null });
+    for (let r = 1; r < 6; r++) { const y = lerp(-625, -250, r / 6) * s, bx = Math.sin(r / 6 * Math.PI) * belly; inkLine([[-246 * s + bx * .6, y], [186 * s + bx, y]], .7 * s, lc, 'inkfine', 0); }
+    for (let c = 1; c < 4; c++) { const x = lerp(-250, 190, c / 4) * s; inkLine([[x, -621 * s], [x + belly * .3 * (c / 4), -420 * s], [x - 8 * s, -254 * s]], .6 * s, lc, 'inkfine', .3); }
+    paint(heartPts(120 * s + belly * .6, -300 * s, 26 * s), { wash: SC.crimson, ink: PAL.ink, sw: .7 * s });
+  }
   jollyRoger(-18 * s, -752 * s, .55 * s, t, { key: 'ship' + (o.key || '') });
   // the hull
   boilSeed('shull');
