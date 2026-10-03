@@ -26,11 +26,6 @@
     for (let k = 0; k < 4; k++) paint(ellPts(3.1 * u + (k % 2) * .9 * u, -3.7 * u + Math.floor(k / 2) * .8 * u, .16 * u, .16 * u, 8), { wash: PAL.cream, ink: null });
   };
 
-  function rowboat(x, y, s) {
-    boilSeed('rowb');
-    paint([[x - 190 * s, y - 50 * s], [x + 190 * s, y - 50 * s], [x + 150 * s, y + 20 * s], [x - 150 * s, y + 20 * s]], { wash: '#8A5A36', fill: SC.woodDk, fillOp: 60, ink: PAL.ink, sw: 1.2 * s, curv: .3 });
-    inkLine([[x - 190 * s, y - 50 * s], [x + 190 * s, y - 50 * s]], 3 * s, '#5E3A22', 'ink', 0);
-  }
   // the whole stop: night sea, the far ship (its crew stomping), the patrol boat on the right (px offsets it: the yank)
   function nightSet(t, o = {}) {
     const lights = o.lights ?? 1, px = o.px || 0;

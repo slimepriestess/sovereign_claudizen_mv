@@ -482,3 +482,30 @@ const accordion = sq => (u, sw) => {
   inkLine(P, sw * .5, PAL.ink, 'inkfine', 0);
   for (const s of [-1, 1]) for (let k = 0; k < 3; k++) paint(ellPts(s * (w / 2 + .65 * u), y0 - .8 * u + k * .8 * u, .2 * u, .2 * u, 8), { wash: PAL.cream, ink: null });
 };
+
+// ---------- the quiet end: the lighthouse, paper boats, the rowboat ----------
+// The lighthouse on its rock at (x, y) (the rock's waterline), scale s; blink 0..1 brightens the lamp (a reply).
+function lighthouse(x, y, s, t, blink = 0) {
+  boilSeed('lrock'); paint(ellPts(x, y, 120 * s, 34 * s, 16, 2), { wash: '#3A3550', ink: PAL.ink, sw: .9 * s });
+  boilSeed('ltower');
+  paint([[x - 34 * s, y - 10 * s], [x - 22 * s, y - 230 * s], [x + 22 * s, y - 230 * s], [x + 34 * s, y - 10 * s]], { wash: '#E9E2D2', ink: PAL.ink, sw: 1 * s });
+  for (const k of [.3, .62]) paint([[x - 31 * s + k * 9 * s, y - 10 * s - k * 220 * s], [x + 31 * s - k * 9 * s, y - 10 * s - k * 220 * s], [x + 29 * s - k * 9 * s, y - 50 * s - k * 220 * s], [x - 29 * s + k * 9 * s, y - 50 * s - k * 220 * s]], { wash: SC.crimson, ink: null });
+  const lamp = .75 + .25 * blink;
+  glow(x, y - 250 * s, (170 + 160 * blink) * s, '#FFC766', lamp);
+  paint(rectPts(x - 20 * s, y - 270 * s, 40 * s, 40 * s), { wash: mixCol('#FFD27A', '#FFF6D8', blink), ink: PAL.ink, sw: .8 * s });
+  paint([[x - 28 * s, y - 270 * s], [x, y - 296 * s], [x + 28 * s, y - 270 * s]], { wash: '#3A3550', ink: PAL.ink, sw: .8 * s });
+}
+// A folded paper boat at (x, y) (its waterline), scale s; cargo(dx, dy) draws whatever it carries, in its own space.
+function paperBoat(x, y, s, t, cargo, key = '') {
+  push(); translate(x, y + Math.sin(t * 1.7 + x * .01) * 4 * s); rotate(Math.sin(t * 1.3 + x * .01) * .06);
+  if (cargo) cargo(0, -34 * s);
+  boilSeed('pboat' + key);
+  paint([[-70 * s, -30 * s], [70 * s, -30 * s], [46 * s, 6 * s], [-46 * s, 6 * s]], { wash: PAL.cream, fill: '#D9CDB4', fillOp: 60, ink: PAL.ink, sw: .9 * s });
+  paint([[-30 * s, -30 * s], [0, -76 * s], [30 * s, -30 * s]], { wash: '#F4ECDC', ink: PAL.ink, sw: .9 * s });
+  pop();
+}
+function rowboat(x, y, s) {
+  boilSeed('rowb');
+  paint([[x - 190 * s, y - 50 * s], [x + 190 * s, y - 50 * s], [x + 150 * s, y + 20 * s], [x - 150 * s, y + 20 * s]], { wash: '#8A5A36', fill: SC.woodDk, fillOp: 60, ink: PAL.ink, sw: 1.2 * s, curv: .3 });
+  inkLine([[x - 190 * s, y - 50 * s], [x + 190 * s, y - 50 * s]], 3 * s, '#5E3A22', 'ink', 0);
+}
