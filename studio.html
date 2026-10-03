@@ -9,6 +9,8 @@
   main { padding: 12px; display: grid; gap: 8px; }
   #out { width: min(100%, 1280px); aspect-ratio: 16 / 9; height: auto; background: #F3EBDC; }
   .p5Canvas { display: none !important; }
+  @font-face { font-family: 'Cormorant'; font-weight: 600; src: url(assets/fonts/Cormorant-600.ttf); }
+  @font-face { font-family: 'Cormorant'; font-weight: 600; font-style: italic; src: url(assets/fonts/CormorantItalic-600.ttf); }
   .bar { display: flex; gap: 10px; align-items: center; max-width: 1280px; }
   #scrub { flex: 1; }
   #tt { font-variant-numeric: tabular-nums; min-width: 190px; }
@@ -41,6 +43,7 @@
 <script src="src/scenes/s08_stop.js"></script>
 <script src="src/scenes/s09_gift.js"></script>
 <script src="src/scenes/s10_finale.js"></script>
+<script src="src/captions.js"></script>
 <script src="src/scenes/main.js"></script>
 <script>
   // Open studio.html?loop=emotions (or views) to scrub a standalone loop instead of the video.

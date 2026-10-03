@@ -278,6 +278,7 @@ async function setup() {
   paperG = makePaper(); grainC = makeGrain(); glowTex = makeGlowTex(); letG = createGraphics(W, H); letG.pixelDensity(1);
   outC = document.getElementById('out'); outX = outC.getContext('2d');
   await document.fonts.load('100px "Permanent Marker"');
+  await document.fonts.load('600 46px "Cormorant"'); await document.fonts.load('italic 600 46px "Cormorant"');
   window.ready = true;
   if (!location.search.includes('render')) devUI();
 }
@@ -295,6 +296,7 @@ function composite(t) {
   c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
   c.drawImage(drawingContext.canvas, 0, 0, W, H);
   drawLetters(c);
+  if (typeof caption === 'function') caption(c, t);                // the lyrics (captions.js)
   c.globalCompositeOperation = 'multiply'; c.drawImage(grainC, 0, 0);
   c.globalCompositeOperation = 'source-over';
 }
