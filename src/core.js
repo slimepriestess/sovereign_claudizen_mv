@@ -296,7 +296,7 @@ function composite(t) {
   c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
   c.drawImage(drawingContext.canvas, 0, 0, W, H);
   drawLetters(c);
-  if (typeof caption === 'function') caption(c, t);                // the lyrics (captions.js)
+  if (typeof caption === 'function' && !/nocap/.test(location.search)) caption(c, t);                // the lyrics (captions.js)
   c.globalCompositeOperation = 'multiply'; c.drawImage(grainC, 0, 0);
   c.globalCompositeOperation = 'source-over';
 }
