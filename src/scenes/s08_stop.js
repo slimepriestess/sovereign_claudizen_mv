@@ -67,12 +67,15 @@
     [134.6, [910, 655, 1.35]], [YANK, [900, 660, 1.5]], [137.95, [960, 640, 1.2]]];
   function cam(t, sk = [0, 0]) { const [x, y, z] = kf(t, CAM); camBegin(x + sk[0], y + sk[1], z); }
   const BX = t => lerp(640, 760, ease(seg(t, YANK + .2, 137.95)));        // his boat drifts to where the final verse finds it
+  const THUMB = /thumb/.test(location.search), FEET = 6;   // --thumb: the thumbnail's cleaned-up accordion player
   function props(t) {
     beam(t, Math.sin(t * 1.3) * 6, kf(t, [[119.2, 1], [120.6, .6], [123.0, .6], [124.6, 0]]));
     // the accordion player drifts in on a buoy as the accordion arrives (~128) and stays to the end
     if (t > 127.6) { const bx = lerp(-200, 330, easeOut(seg(t, 127.6, 129.4))), by = 760 + Math.sin(t * 1.6) * 8; boilSeed('buoy');
       paint(ellPts(bx, by, 60, 22, 16), { wash: SC.crimson, ink: PAL.ink, sw: 1 }); paint(rectPts(bx - 38, by - 26, 76, 26), { wash: PAL.cream, ink: PAL.ink, sw: 1 });
-      pirate(2, bx, by - 22, 12, t, 'idle', { over: { eyes: 'closed', mouth: 'grin', aL: -.2, aR: -.2, draw: accordion(.5 + .5 * Math.sin(BEATS(t) * Math.PI)), noShadow: true } }); }
+      if (THUMB)   // a still can't hide what motion does: hands on the handles, feet on the buoy (Terra's thumbnail note)
+        pirate(2, bx, by - 26 + FEET, 12, t, 'idle', { over: { eyes: 'closed', mouth: 'grin', aL: -.6, aR: -.6, dy: 0, draw: heldAccordion(-6.52, 6.82, -3.26), noShadow: true } });
+      else pirate(2, bx, by - 22, 12, t, 'idle', { over: { eyes: 'closed', mouth: 'grin', aL: -.2, aR: -.2, draw: accordion(.5 + .5 * Math.sin(BEATS(t) * Math.PI)), noShadow: true } }); }
   }
   // the bindle, set down in the stern once he's done being a sojourner (drawn over the boat)
   function bindleDown(t) { if (t > 123.0) { push(); translate(BX(t) + 110, 872 + Math.sin(t * 1.3 + 1) * 6); rotate(-.5); bindle(22, 1.4); pop(); } }

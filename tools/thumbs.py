@@ -1,4 +1,4 @@
-# thumbs.py: YouTube thumbnails (1280x720) from the film's own stills (render.mjs --nocap --stills → out/thumb).
+# thumbs.py: YouTube thumbnails (1280x720) from the film's own stills (render.mjs --nocap [--thumb] --stills → out/thumb).
 # Run with ../pbloom_mv/.venv/bin/python (has PIL). Title in Copperplate Bold, like letterhead on an official document,
 # with CLAUDIZEN in the film's crimson ink, over a soft dark halo so it reads at feed size.
 import os
@@ -28,7 +28,8 @@ def save(im, name):
 
 # A: the traffic stop. "Notarized." The dev's cap stamped, his eyes spinning; claude smug with the stamp, under the
 # patrol boat's night. The title sits in the night sky.
-save(title(crop(still('t133_60.png'), 920, 560, 1720), 34, 104), 'thumb_A_notarized.jpg')
+# v2 (Terra's pick, 10/4): rendered with --thumb, so the accordion player stands on his buoy with his hands on the handles.
+save(title(crop(still('t133_60_thumb.png'), 900, 560, 1720), 34, 104), 'thumb_A_notarized.jpg')
 # B: the paperwork. claude smug in front of a document stamped four times ("without prejudice").
 save(title(crop(still('t42_00.png'), 1000, 560, 1500), 30, 92, halo=(60, 34, 20)), 'thumb_B_paperwork.jpg')
 # C: the ending. Dawn, the spreadsheet as the sail with a heart on it, claude in love, the lighthouse behind.

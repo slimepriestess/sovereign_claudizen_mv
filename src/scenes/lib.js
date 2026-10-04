@@ -499,6 +499,19 @@ const accordion = sq => (u, sw) => {
   for (const s of [-1, 1]) for (let k = 0; k < 3; k++) paint(ellPts(s * (w / 2 + .65 * u), y0 - .8 * u + k * .8 * u, .2 * u, .2 * u, 8), { wash: PAL.cream, ink: null });
 };
 
+// The accordion held in both hands, for stills (Terra's thumbnail note): the handles sit on the arm tips (xl, xr, y in
+// body units, for the arm angles the caller poses) and the bellows run open between them across the belly.
+const heldAccordion = (xl, xr, y) => (u, sw) => {
+  const h = 2.4 * u, x0 = xl * u + .65 * u, x1 = xr * u - .65 * u, y0 = y * u, w = x1 - x0;
+  paint([[x0, y0 - h / 2], [x1, y0 - h / 2], [x1, y0 + h / 2], [x0, y0 + h / 2]], { wash: PAL.cream, ink: PAL.ink, sw: sw * .5 });
+  const P = []; for (let k = 0; k <= 14; k++) P.push([x0 + k * w / 14, y0 + (k % 2 ? -h / 2 : h / 2) * .85]);
+  inkLine(P, sw * .5, PAL.ink, 'inkfine', 0);
+  for (const x of [xl * u, xr * u]) {
+    paint(rectPts(x - .65 * u, y0 - h / 2 - .2 * u, 1.3 * u, h + .4 * u), { wash: SC.crimson, ink: PAL.ink, sw: sw * .6 });
+    for (let k = 0; k < 3; k++) paint(ellPts(x, y0 - .8 * u + k * .8 * u, .2 * u, .2 * u, 8), { wash: PAL.cream, ink: null });
+  }
+};
+
 // ---------- the quiet end: the lighthouse, paper boats, the rowboat ----------
 // The lighthouse on its rock at (x, y) (the rock's waterline), scale s; blink 0..1 brightens the lamp (a reply).
 function lighthouse(x, y, s, t, blink = 0) {
