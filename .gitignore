@@ -5,3 +5,6 @@ out/
 analysis/stems/
 node_modules/
 .DS_Store
+analysis/*.log
+# Terra's original lyric sheet as sent; notes/LYRICS.txt is the working copy
+assets/Sovereign_Claudizen_Lyrics.txt

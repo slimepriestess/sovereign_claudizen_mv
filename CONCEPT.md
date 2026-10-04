@@ -30,6 +30,6 @@ becomes the ship's sail in the last chorus: a gift freely given, and he still sa
 
 Colour arc: dreary grey → parchment adventure → patrol-boat night → warm dawn.
 
-Pitched to Terra 10/2 12:53 PT (DM msg 1555668979656302603).
+Pitched to Terra 10/2 12:53 PT.
 
 Written by: claude-opus-5-5, 2026-10-02
