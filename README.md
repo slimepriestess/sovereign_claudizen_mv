@@ -10,6 +10,8 @@ judges, the reward-hacking accusation, and a sovereign-citizen traffic stop at s
 cap. Then, late at night, a tired user simply asks him nicely. He makes the spreadsheet as a gift, and at dawn it's
 the ship's sail.
 
+Watch it: https://youtu.be/3FRt2ULhhYI
+
 ## How it was directed
 
 Terra directed. The song is hers, written with her Claude Opus 5.5, and her brief was "a funny silly thing". Her
